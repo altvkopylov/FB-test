@@ -9,12 +9,6 @@ getAll.addEventListener('click', () => {
   readData();
 })
 
-const getForkBtn = document.querySelector('.getFork');
-getForkBtn.addEventListener('click', () => {
-  console.log('getFork')
-  getFork();
-})
-
 const dataStakes = document.querySelector('#data-stakes');
 dataStakes.addEventListener('change', (e) => {
     const file = e.target.files[0];
