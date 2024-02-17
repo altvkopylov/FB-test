@@ -1,0 +1,169 @@
+// // Открытие или создание базы данных
+// const request = indexedDB.open('myDatabase', 1);
+
+// // Обработчик ошибок открытия базы данных
+// request.onerror = function(event) {
+//   console.log('Ошибка при открытии базы данных:', event.target.errorCode);
+// };
+
+// // Обработчик успешного открытия базы данных
+// request.onsuccess = function(event) {
+//   // Получение ссылки на базу данных
+//   const db = event.target.result;
+//   console.log('База данных открыта успешно');
+
+//   // Здесь вы можете выполнять операции с базой данных
+//   // Например, чтение данных или сохранение новых записей
+// };
+
+// // Обработчик обновления базы данных (например, если базы данных еще нет)
+// request.onupgradeneeded = function(event) {
+//   // Получение ссылки на базу данных
+//   const db = event.target.result;
+
+//   // Создание хранилища объектов (таблицы) в базе данных
+//   const objectStore = db.createObjectStore('people', { keyPath: 'id', autoIncrement:true });
+
+//   // Определение структуры хранилища объектов (поля таблицы)
+//   objectStore.createIndex('name', 'name', { unique: false });
+//   objectStore.createIndex('email', 'email', { unique: true });
+
+//   console.log('База данных обновлена');
+// };
+
+// // Пример добавления данных в базу данных
+// function addData() {
+//   const request = indexedDB.open('myDatabase', 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction(['people'], 'readwrite');
+//     const objectStore = transaction.objectStore('people');
+
+//     // Добавление новой записи в хранилище объектов
+//     const requestAdd = objectStore.add({ name: 'John', email: 'john@example.com' });
+
+//     requestAdd.onsuccess = function(event) {
+//       console.log('Новая запись добавлена успешно');
+//     };
+
+//     requestAdd.onerror = function(event) {
+//       console.log('Ошибка при добавлении новой записи:', event.target.errorCode);
+//     };
+//   };
+// }
+
+// // Пример чтения данных из базы данных
+// function readData() {
+//   const request = indexedDB.open('myDatabase', 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction(['people'], 'readonly');
+//     const objectStore = transaction.objectStore('people');
+
+//     // Получение всех записей из хранилища объектов
+//     const requestGetAll = objectStore.getAll();
+
+//     requestGetAll.onsuccess = function(event) {
+//       console.log('Все записи:', event.target.result);
+//     };
+
+//     requestGetAll.onerror = function(event) {
+//       console.log('Ошибка при чтении данных:', event.target.errorCode);
+//     };
+//   };
+// }
+
+// // Пример удаления данных из базы данных
+// function deleteData(id) {
+//   const request = indexedDB.open('myDatabase', 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction(['people'], 'readwrite');
+//     const objectStore = transaction.objectStore('people');
+
+//     // Удаление записи из хранилища объектов по ключу
+//     const requestDelete = objectStore.delete(id);
+
+//     requestDelete.onsuccess = function(event) {
+//       console.log('Запись удалена успешно');
+//     };
+
+//     requestDelete.onerror = function(event) {
+//       console.log('Ошибка при удалении записи:', event.target.errorCode);
+//     };
+//   };
+// }
+
+// // Пример обновления данных в базе данных
+// function updateData(id, newData) {
+//   const request = indexedDB.open('myDatabase', 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction(['people'], 'readwrite');
+//     const objectStore = transaction.objectStore('people');
+
+//     // Получение записи по ключу и обновление её данных
+//     const requestGet = objectStore.get(id);
+
+//     requestGet.onsuccess = function(event) {
+//       const data = event.target.result;
+//       data.name = newData.name;
+//       data.email = newData.email;
+
+//       // Обновление записи в хранилище объектов
+//       const requestUpdate = objectStore.put(data);
+
+//       requestUpdate.onsuccess = function(event) {
+//         console.log('Запись обновлена успешно');
+//       };
+
+//       requestUpdate.onerror = function(event) {
+//         console.log('Ошибка при обновлении записи:', event.target.errorCode);
+//       };
+//     };
+
+//     requestGet.onerror = function(event) {
+//       console.log('Ошибка при чтении данных:', event.target.errorCode);
+//     };
+//   };
+// }
+
+// function addPeople() {
+//   const peopleToAdd = [
+//     { name: 'Alice', email: 'alice@example.com' },
+//     { name: 'Bob', email: 'bob@example.com' },
+//     { name: 'Charlie', email: 'charlie@example.com' },
+//     { name: 'David', email: 'david@example.com' },
+//     { name: 'Eve', email: 'eve@example.com' }
+//   ];
+
+//   const request = indexedDB.open('myDatabase', 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction(['people'], 'readwrite');
+//     const objectStore = transaction.objectStore('people');
+
+//     // Добавление каждого человека в базу данных
+//     peopleToAdd.forEach(person => {
+//       const requestAdd = objectStore.add(person);
+//       requestAdd.onsuccess = function(event) {
+//         console.log('Человек добавлен успешно:', person);
+//       };
+//       requestAdd.onerror = function(event) {
+//         console.error('Ошибка при добавлении человека:', event.target.error);
+//       };
+//     });
+//   };
+
+//   request.onerror = function(event) {
+//     console.error('Ошибка при открытии базы данных:', event.target.error);
+//   };
+// }
+
+// Вызов функции добавления людей
+//addPeople();
