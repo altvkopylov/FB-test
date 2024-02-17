@@ -1,27 +1,33 @@
-// const previousPage = document.referrer;
-// console.log("Предыдущая страница: " + previousPage);
+// function getUserId() {
+//     window.addEventListener('DOMContentLoaded', function() {
+//         const queryString = window.location.search;
+//         const urlParams = new URLSearchParams(queryString);
+//         const userId = urlParams.get('user_id');
+//         return userId;
+//     });
+// }
 
-// document.getElementById('userLink').addEventListener('click', function(event) {
-//     var sourceLink = this.getAttribute('href');
-//     console.log("Ссылка, с которой пользователь перешел на эту страницу:", sourceLink);
-// });
+// const userId = getUserId();
+// console.log(getUserId())
 
-// window.addEventListener('DOMContentLoaded', (event) => {
-//     const queryString = window.location.search;
-//     const urlParams = new URLSearchParams(queryString);
-//     const source = urlParams.get('source');
-//     console.log("Ссылка, с которой пользователь перешел на страницу пользователя:", source);
-// });
+// getUserInfo(userId);
 
-// window.addEventListener('DOMContentLoaded', function() {
-//     var referrerUrl = document.referrer;
-//     var source = referrerUrl.split("/").pop(); // Получаем только последнюю часть URL-адреса, то есть название страницы
-//     console.log("Ссылка, с которой пользователь перешел на страницу пользователя:", source);
-// });
+function getUserId() {
+    return new Promise((resolve, reject) => {
+        window.addEventListener('DOMContentLoaded', function() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const userId = urlParams.get('user_id');
+            resolve(userId);
+        });
+    });
+}
 
-window.addEventListener('DOMContentLoaded', function() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const userId = urlParams.get('user_id');
-    console.log("ID пользователя:", userId);
-});
+getUserId()
+    .then(userId => {
+        console.log(userId); // В этом месте вы можете использовать userId
+        getUserInfo(userId);
+    })
+    .catch(error => {
+        console.error(error);
+    });

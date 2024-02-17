@@ -105,3 +105,24 @@ function getFork() {
     };
   };
 }
+
+function getUserInfo(id) {
+  const request = indexedDB.open('fb_db', 1);
+
+  request.onsuccess = function(event) {
+    const db = event.target.result;
+    const transaction = db.transaction(['stakes'], 'readonly');
+    const objectStore = transaction.objectStore('stakes');
+
+    const requestGetAll = objectStore.getAll();
+      
+    requestGetAll.onsuccess = function() {
+      let filtered = requestGetAll.result.filter(item => item[2] == id);
+      console.log(filtered)
+    };
+
+    requestGetAll.onerror = function(event) {
+      console.log('Ошибка при чтении данных:', event.target.errorCode);
+    };
+  };
+}
