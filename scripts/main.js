@@ -94,9 +94,10 @@ function getFork() {
     const requestGetAll = objectStore.getAll();
       
     requestGetAll.onsuccess = function(event) {
-      let filtered = requestGetAll.result.filter(item => forkGSLive.includes(item[31])).map(item => item[9]);
-      console.log(Array.from(new Set(filtered)))
-      //console.log(filtered)
+      let filtered = requestGetAll.result.filter(item => item[2] == 205542);
+      //let filtered = requestGetAll.result.filter(item => forkGSLive.includes(item[31])).map(item => item[9]);
+      //console.log(Array.from(new Set(filtered)))
+      console.log(filtered)
     };
 
     requestGetAll.onerror = function(event) {
