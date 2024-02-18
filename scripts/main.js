@@ -1,14 +1,18 @@
+// ДОБАВИТЬ БАЗУ ДАННЫХ
+
 const request = indexedDB.open('fb_db', 1);
 
-request.onsuccess = function() {
-  //console.log('База данных открыта успешно');
-};
+// ДОБАВИТЬ ТАБЛИЦЫ В БАЗУ ДАННЫХ
 
 request.onupgradeneeded = function(event) {
-    const db = event.target.result;
-    const objectStore = db.createObjectStore('stakes', { keyPath: 'id', autoIncrement:true });
-    console.log('База данных обновлена');
+  const db = event.target.result;
+  db.createObjectStore('stakes', { keyPath: 'id', autoIncrement: true });
+  db.createObjectStore('forks_stakes', { keyPath: 'id', autoIncrement: true });
+  db.createObjectStore('forks_outcomes', { keyPath: 'id', autoIncrement: true });
+  db.createObjectStore('suspicious_stakes', { keyPath: 'id', autoIncrement: true });
 };
+
+// ДОБАВИТЬ ДАННЫЕ В ТАБЛИЦУ 'stakes'
 
 function addDataBatch(dataArray) {
   const request = indexedDB.open('fb_db', 1);
@@ -52,6 +56,32 @@ function addDataBatch(dataArray) {
   };
 }
 
+// ДОБАВИТЬ ДАННЫЕ В ТАБЛИЦУ
+
+function addToDB(dataArray, db, table) {
+  const request = indexedDB.open(db, 1);
+
+  request.onsuccess = function(event) {
+    const db = event.target.result;
+    const transaction = db.transaction([table], 'readwrite');
+    const objectStore = transaction.objectStore(table);
+
+    dataArray.forEach(function (data) {
+      objectStore.add(data);
+    });
+
+    transaction.oncomplete = function(event) {
+      console.log('Все записи добавлены успешно');
+    };
+
+    transaction.onerror = function(event) {
+      console.log('Ошибка при добавлении записей:', event.target.errorCode);
+    };
+  };
+}
+
+// ОЧИСТИТЬ ТАБЛИЦУ
+
 function clearData() {
     const request = indexedDB.open('fb_db', 1);
 
@@ -71,101 +101,81 @@ function clearData() {
     }
 }
 
-function readData() {
-  const request = indexedDB.open('fb_db', 1);
+// УДАЛИТЬ БАЗУ ДАННЫХ
 
-  request.onsuccess = function(event) {
-    const db = event.target.result;
-    const transaction = db.transaction(['stakes'], 'readonly');
-    const objectStore = transaction.objectStore('stakes');
+function deleteDB() {
+  const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
-    // Получение всех записей из хранилища объектов
-    const requestGetAll = objectStore.getAll();
+    if (!indexedDB) {
+        console.log("Ваш браузер не поддерживает IndexedDB.");
+    }
 
-    requestGetAll.onsuccess = function(event) {
-      console.log('Все записи:', event.target.result);
+    const request = indexedDB.deleteDatabase('fb_db');
+
+    request.onerror = function(event) {
+        console.log("Ошибка при удалении базы данных:", event.target.errorCode);
     };
 
-    requestGetAll.onerror = function(event) {
-      console.log('Ошибка при чтении данных:', event.target.errorCode);
+    request.onsuccess = function(event) {
+        console.log("База данных успешно удалена.");
     };
-  };
 }
 
-// function getFork() {
-//   const forkGSPrebet = ['Расписчик/Кнопочник1', 'Расписчик/Кнопочник2', 'Расписчик/Кнопочник5'];
-//   const forkGSLive = ['Внешние1', 'Внешние2', 'Внешние5'];
-//   const request = indexedDB.open('fb_db', 1);
+// ПОЛУЧИТЬ ИНФОРМАЦИЮ С БАЗЫ ДАННЫХ
 
-//   request.onsuccess = function(event) {
-//     const db = event.target.result;
-//     const transaction = db.transaction(['stakes'], 'readonly');
-//     const objectStore = transaction.objectStore('stakes');
-
-//     const requestGetAll = objectStore.getAll();
-      
-//     requestGetAll.onsuccess = function(event) {
-//       //let filtered = requestGetAll.result.filter(item => item[2] == 205542);
-//       let filtered = requestGetAll.result.filter(item => forkGSLive.includes(item[31])).map(item => item[9]);
-//       console.log(Array.from(new Set(filtered)))
-//       //console.log(filtered)
-//     };
-
-//     requestGetAll.onerror = function(event) {
-//       console.log('Ошибка при чтении данных:', event.target.errorCode);
-//     };
-//   };
-// }
-
-// function getUserInfo(id) {
-//   const request = indexedDB.open('fb_db', 1);
-
-//   request.onsuccess = function(event) {
-//     const db = event.target.result;
-//     const transaction = db.transaction(['stakes'], 'readonly');
-//     const objectStore = transaction.objectStore('stakes');
-
-//     const requestGetAll = objectStore.getAll();
-      
-//     requestGetAll.onsuccess = function() {
-//       let filtered = requestGetAll.result.filter(item => item[2] == id);
-//       //console.log(filtered)
-//       return filtered;
-//     };
-
-//     requestGetAll.onerror = function(event) {
-//       console.log('Ошибка при чтении данных:', event.target.errorCode);
-//     };
-//   };
-// }
-
-function getUserInfo(id) {
+function getAllData(db, table) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('fb_db', 1);
+    const request = indexedDB.open(db, 1);
 
     request.onsuccess = function(event) {
       const db = event.target.result;
-      const transaction = db.transaction(['stakes'], 'readonly');
-      const objectStore = transaction.objectStore('stakes');
+      const transaction = db.transaction([table], 'readonly');
+      const objectStore = transaction.objectStore(table);
 
       const requestGetAll = objectStore.getAll();
-        
       requestGetAll.onsuccess = function() {
-        let filtered = requestGetAll.result.filter(item => item[2] == id);
-        // Разрешаем обещание с результатом
-        resolve(filtered);
+        resolve(requestGetAll.result);
       };
 
       requestGetAll.onerror = function(event) {
         console.log('Ошибка при чтении данных:', event.target.errorCode);
-        // Отклоняем обещание с ошибкой, если что-то пошло не так
         reject(new Error('Ошибка при чтении данных'));
       };
     };
   });
 }
 
-function getOutcomeWithFork() {
+// ПОЛУЧИТЬ ИНФОРМАЦИЮ О ПОЛЬЗОВАТЕЛЕ
+
+function getUserInfo(db, table, id) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(db, 1);
+
+    request.onsuccess = function(event) {
+      const db = event.target.result;
+      const transaction = db.transaction([table], 'readonly');
+      const objectStore = transaction.objectStore(table);
+
+      const requestGetAll = objectStore.getAll();
+        
+      requestGetAll.onsuccess = function() {
+        let filtered = requestGetAll.result.filter(item => item[2] == id);
+        resolve(filtered);
+      };
+
+      requestGetAll.onerror = function(event) {
+        console.log('Ошибка при чтении данных:', event.target.errorCode);
+        reject(new Error('Ошибка при чтении данных'));
+      };
+    };
+  });
+}
+
+// ПОЛУЧИТЬ СПИСОК ВИЛОК
+
+
+
+function getSuspiciousUsers() {
   const forkGSPrebet = ['Расписчик/Кнопочник1', 'Расписчик/Кнопочник2', 'Расписчик/Кнопочник5'];
   const forkGSLive = ['Внешние1', 'Внешние2', 'Внешние5'];
 
@@ -180,34 +190,42 @@ function getOutcomeWithFork() {
       const requestGetAll = objectStore.getAll();
         
       requestGetAll.onsuccess = function () {
-        let gs_user = requestGetAll.result.filter(item => forkGSLive.includes(item[31]));
-        let gs_user_outcome = gs_user.map(item => item[9]);
-        //let filtered_test = requestGetAll.result.filter(item => forkGSLive.includes(item[31]));
-        //console.log(filtered_test)
+        let gs_user = requestGetAll.result.filter(item => forkGSLive.includes(item[31])); // +
+        // addToDB(gs_user, 'fb_db', 'forks_stakes');
+        //
+        let gs_user_outcome = gs_user.map(item => item[9]); // +
+        //console.log(gs_user_outcome)
 
-        let result = requestGetAll.result.filter(item => gs_user_outcome.includes(item[9]) && !forkGSLive.includes(item[31])).map(item => [item[2], item[32], item[9], item[6], item[3]]);
-        //let result = requestGetAll.result.filter(item => gs_user_outcome.includes(item[9])).map(item => [item[2], item[32], item[9], item[6]]);
+        let result = requestGetAll.result.filter(item => gs_user_outcome.includes(item[9]) && !forkGSLive.includes(item[31])); // +
+        let result_2 = requestGetAll.result.filter(item => gs_user_outcome.includes(item[9])); // +
+
+        let result_3 = requestGetAll.result.filter(item => gs_user.map(item => item[9]).includes(item[9])); //+
+
+        //console.log(result)
+        //console.log(result_2)
+
         toSorted(result, 2, 3)
-
-        console.log(gs_user)
-        console.log(result)
-
         const final_user_list = compareArrays(result, gs_user)
-
-//       console.log(Array.from(new Set(filtered)))
-        // Разрешаем обещание с результатом
-        //resolve(filtered);
-        resolve(final_user_list);
+        
+        console.log(result)
+        console.log(gs_user)
+        console.log(final_user_list);
+        resolve(final_user_list)
       };
 
       requestGetAll.onerror = function(event) {
         console.log('Ошибка при чтении данных:', event.target.errorCode);
-        // Отклоняем обещание с ошибкой, если что-то пошло не так
         reject(new Error('Ошибка при чтении данных'));
       };
     };
   });
 }
+
+
+
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+
+// 1. СОРТИРОВКА ПО ДВУМ СТОЛБЦАМ
 
 function toSorted(arr, index_1, index_2) {
   arr.sort((a, b) => {
@@ -215,20 +233,7 @@ function toSorted(arr, index_1, index_2) {
   });
 }
 
-// function compareArrays(clear_users, gs_users) {
-//   const final_user_list = [];
-//   for (const clear_user of clear_users) {
-//     for (const gs_user of gs_users) {
-//       const date1 = new Date(clear_user[3]);
-//       const date2 = new Date(gs_user[6]);
-//       const timeDifference = Math.abs(date1 - date2) / 1000;
-//       if (clear_user[2] === gs_user[9] && timeDifference <= 20) {
-//         final_user_list.push(clear_user);
-//       }
-//     }
-//   }
-//   return final_user_list;
-// }
+// 2. СРАВНЕНИЕ ДВУХ ТАБЛИЦ ПО ПЕРЕСЕЧЕНИЮ АУТКАМА И ВРЕМЕНИ
 
 function compareArrays(clear_users, gs_users) {
   const final_user_list = [];
@@ -236,15 +241,15 @@ function compareArrays(clear_users, gs_users) {
   
   for (const clear_user of clear_users) {
     for (const gs_user of gs_users) {
-      const date1 = new Date(clear_user[3]);
+      const date1 = new Date(clear_user[6]);
       const date2 = new Date(gs_user[6]);
       const timeDifference = Math.abs(date1 - date2) / 1000;
       
-      if (clear_user[2] === gs_user[9] && timeDifference <= 20) {
+      if (clear_user[9] === gs_user[9] && timeDifference <= 20) {
         // Добавляем проверку на уникальность даты
-        if (!uniqueDates.has(clear_user[4])) {
+        if (!uniqueDates.has(clear_user[3])) {
           final_user_list.push(clear_user);
-          uniqueDates.add(clear_user[4]); // Добавляем дату в объект Set
+          uniqueDates.add(clear_user[3]); // Добавляем дату в объект Set
         }
       }
     }
