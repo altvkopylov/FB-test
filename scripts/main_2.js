@@ -1,4 +1,4 @@
-const forkGSLive = ['Внешние1', 'Внешние2', 'Внешние5'];
+const forkGSLive = ['Внешние1', 'Внешние2', 'Внешние5', 'Manual1', 'Кнопка1', 'Внутренние1', 'Корридоры1'];
 const forkGSPrebet = ['Расписчик/Кнопочник1', 'Расписчик/Кнопочник2', 'Расписчик/Кнопочник5'];
 
 const clearDBbutton = document.querySelector('.clearDB');
@@ -13,16 +13,32 @@ getAll.addEventListener('click', () => {
   //readData();
   //console.log(getAllData())
 
-  getAllData('fb_db', 'stakes')
+  // getAllData('fb_db', 'stakes')
+  //   .then(userInfo => {
+  //     //console.log(userInfo); // Используем полученные данные
+      
+  //     console.clear();
+  //     console.log(userInfo[0])
+  //   })
+  //   .catch(error => {
+  //       console.error(error);
+  //   });
+
+
+})
+
+getAllData('fb_db', 'stakes')
     .then(userInfo => {
-        console.log(userInfo); // Используем полученные данные
+      //console.log(userInfo); // Используем полученные данные
+      
+      console.clear();
+      let array = userInfo.map(item => item[31]);
+      let uniqueArray = Array.from(new Set(array));
+      console.log(uniqueArray)
     })
     .catch(error => {
         console.error(error);
     });
-
-
-})
 
 const dataStakes = document.querySelector('#data-stakes');
 dataStakes.addEventListener('change', (e) => {
@@ -50,8 +66,10 @@ dataStakes.addEventListener('change', (e) => {
 
           let not_gs_stakes = userInfo.filter(item => gs_user.map(item => item[9]).includes(item[9]) && !forkGSLive.includes(item[31]));
           //console.log(not_gs_stakes)
-          not_gs_stakes = compareArrays(not_gs_stakes, gs_user)
-          addToDB(not_gs_stakes, 'fb_db', 'suspicious_stakes');
+          // not_gs_stakes = compareArrays(not_gs_stakes, gs_user)
+          not_gs_stakes = compareArrays(not_gs_stakes, gs_user).clearUser;
+          intersection_gs_stakes = compareArrays(not_gs_stakes, gs_user).gsUser;
+          addToDB(not_gs_stakes, 'fb_db', 'suspicious_stakes', intersection_gs_stakes);
         })
         .catch(error => {
             console.error(error);

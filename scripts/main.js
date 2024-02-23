@@ -58,7 +58,32 @@ function addDataBatch(dataArray) {
 
 // ДОБАВИТЬ ДАННЫЕ В ТАБЛИЦУ
 
-function addToDB(dataArray, db, table) {
+// function addToDB(dataArray, db, table, additionalValue = null) {
+//   const request = indexedDB.open(db, 1);
+
+//   request.onsuccess = function(event) {
+//     const db = event.target.result;
+//     const transaction = db.transaction([table], 'readwrite');
+//     const objectStore = transaction.objectStore(table);
+
+//     dataArray.forEach(function (data) {
+//       if (additionalValue !== null) {
+//         data = { ...data, additionalValue };
+//       }
+//       objectStore.add(data);
+//     });
+
+//     transaction.oncomplete = function(event) {
+//       console.log('Все записи добавлены успешно');
+//     };
+
+//     transaction.onerror = function(event) {
+//       console.log('Ошибка при добавлении записей:', event.target.errorCode);
+//     };
+//   };
+// }
+
+function addToDB(dataArray, db, table, additionalArray) {
   const request = indexedDB.open(db, 1);
 
   request.onsuccess = function(event) {
@@ -66,7 +91,12 @@ function addToDB(dataArray, db, table) {
     const transaction = db.transaction([table], 'readwrite');
     const objectStore = transaction.objectStore(table);
 
-    dataArray.forEach(function (data) {
+    dataArray.forEach(function (data, index) {
+      // Проверяем, есть ли значение в additionalArray для текущего индекса
+      const additionalValue = additionalArray ? additionalArray[index] : null;
+      if (additionalValue !== null && additionalValue !== undefined) {
+        data = { ...data, additionalValue };
+      }
       objectStore.add(data);
     });
 
@@ -237,7 +267,8 @@ function toSorted(arr, index_1, index_2) {
 
 function compareArrays(clear_users, gs_users) {
   const final_user_list = [];
-  const uniqueDates = new Set(); // Создаем объект Set для хранения уникальных дат
+  const intersection_gs_user = [];
+  const unique_final_user_list = new Set(); // Создаем объект Set для хранения уникальных дат
   
   for (const clear_user of clear_users) {
     for (const gs_user of gs_users) {
@@ -247,12 +278,17 @@ function compareArrays(clear_users, gs_users) {
       
       if (clear_user[9] === gs_user[9] && timeDifference <= 20) {
         // Добавляем проверку на уникальность даты
-        if (!uniqueDates.has(clear_user[3])) {
+        if (!unique_final_user_list.has(clear_user[3])) {
           final_user_list.push(clear_user);
-          uniqueDates.add(clear_user[3]); // Добавляем дату в объект Set
+          intersection_gs_user.push(gs_user);
+          unique_final_user_list.add(clear_user[3]); // Добавляем дату в объект Set
         }
       }
     }
   }
-  return final_user_list;
+  //intersection_gs_user
+  return {
+    'clearUser': final_user_list,
+    'gsUser': intersection_gs_user
+  };
 }
