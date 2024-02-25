@@ -276,7 +276,7 @@ function compareArrays(clear_users, gs_users) {
       const date2 = new Date(gs_user[6]);
       const timeDifference = Math.abs(date1 - date2) / 1000;
       
-      if (clear_user[9] === gs_user[9] && timeDifference <= 20) {
+      if (clear_user[9] === gs_user[9] && ((clear_user[16] === "Live" && timeDifference <= 20) || (clear_user[16] === "PreBet" && timeDifference <= 90))) {
         // Добавляем проверку на уникальность даты
         if (!unique_final_user_list.has(clear_user[3])) {
           final_user_list.push(clear_user);

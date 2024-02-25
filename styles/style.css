@@ -14,9 +14,43 @@ table td, table th{
 }
 
 .silver {
-    background-color: silver;
+    background-color: #C0C0C0;
 }
 
 .platinum {
     background-color: #e5e4e2;
+}
+
+.bronze {
+    background-color: #D2B48C;
+}
+
+.gold {
+    background-color: #FFD700;
+}
+
+.positive {
+    background-color: #99ff99;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th,
+td:not([colspan]) {
+    border: 1px solid black;
+    padding: 5px 10px;
+}
+
+td:is([colspan]) {
+    padding: 2px 0 5px;
+}
+
+/* .hide {
+    display: none;
+} */
+
+.user-info {
+    background-color: darkkhaki;
 }
