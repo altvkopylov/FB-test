@@ -6,6 +6,7 @@
 
 table {
     border-collapse: collapse;
+    font-size: 10px;
 }
 
 table td, table th{
@@ -47,10 +48,10 @@ td:is([colspan]) {
     padding: 2px 0 5px;
 }
 
-/* .hide {
+.hide {
     display: none;
-} */
+}
 
 .user-info {
-    background-color: darkkhaki;
+    background-color: rgb(101, 191, 221);
 }

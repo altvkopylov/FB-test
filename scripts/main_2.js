@@ -27,19 +27,6 @@ getAll.addEventListener('click', () => {
 
 })
 
-getAllData('fb_db', 'stakes')
-    .then(userInfo => {
-      //console.log(userInfo); // Используем полученные данные
-      
-      console.clear();
-      let array = userInfo.map(item => item[31]);
-      let uniqueArray = Array.from(new Set(array));
-      console.log(uniqueArray)
-    })
-    .catch(error => {
-        console.error(error);
-    });
-
 const dataStakes = document.querySelector('#data-stakes');
 dataStakes.addEventListener('change', (e) => {
     const file = e.target.files[0];
