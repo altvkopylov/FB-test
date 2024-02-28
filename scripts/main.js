@@ -278,10 +278,12 @@ function compareArrays(clear_users, gs_users) {
       
       if (clear_user[9] === gs_user[9] && ((clear_user[16] === "Live" && timeDifference <= 20) || (clear_user[16] === "PreBet" && timeDifference <= 90))) {
         // Добавляем проверку на уникальность даты
-        if (!unique_final_user_list.has(clear_user[3])) {
-          final_user_list.push(clear_user);
-          intersection_gs_user.push(gs_user);
-          unique_final_user_list.add(clear_user[3]); // Добавляем дату в объект Set
+        if ((clear_user[4] === 'UAH' && clear_user[18] >= 200) || (clear_user[4] !== 'UAH')) {
+          if (!unique_final_user_list.has(clear_user[3])) {
+            final_user_list.push(clear_user);
+            intersection_gs_user.push(gs_user);
+            unique_final_user_list.add(clear_user[3]); // Добавляем дату в объект Set
+          }
         }
       }
     }
