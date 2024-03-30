@@ -16,7 +16,6 @@ getAllData('fb_db', 'stakes')
 
 getAllData('fb_db', 'suspicious_stakes')
     .then(userInfo => {
-        //console.log(userInfo)
 
         let groupedArray = userInfo.reduce((acc, obj) => {
         const index = obj[2];
@@ -34,108 +33,76 @@ getAllData('fb_db', 'suspicious_stakes')
 
         const filteredGroupedArray = groupedArray.filter(group => group.count >= 2);
 
+        console.log((''+filteredGroupedArray[0].array[0][21]).replace(/\./g, ','))
+
+        // filteredGroupedArray.forEach(user => {
+        //     user.array.forEach(stake => {
+        //         console.log(stake)
+        //     })
+        // })
+
         const forkTable = document.querySelector('.main-table');
-        const forkMarkup = filteredGroupedArray.map((item, index) => {
-            const partnerId = item.array[0][0];
-            const userId = item.array[0][2];
-            const FCLive = item.array[0][29];
-            const FCPrebet = item.array[0][30];
-            const GSLive = item.array[0][31];
-            const GSPrebet = item.array[0][32];
-            const stakesCount = stakesInfo[userId] ? stakesInfo[userId].length : 0; // Используем информацию о ставках для пользователя
-            const GSstakesCount = item.count;
 
-            return `
-                <tr class="user-info">
-                    <td class="toggle-cell">+</td>
-                    <td>${index + 1}</td>
-                    <td>${partnerId}</td>
-                    <td>${userId}</td>
-                    <td class="${getBackgroundColor(FCLive)}">${FCLive}</td>
-                    <td class="${getBackgroundColor(FCPrebet)}" >${FCPrebet}</td>
-                    <td>${GSLive}</td>
-                    <td>${GSPrebet}</td>
-                    <td>${stakesCount}</td>
-                    <td>${GSstakesCount}</td>
-                    <td>${Math.round(((GSstakesCount / stakesCount) * 100))}%</td>
-                </tr>
-                <tr class="sub-table hide">
-                    <td colspan="10">
-                    <table>
-                        <tr>
-                            <th>Service</th>
-                            <th>Sport</th>
-                            <th>Event ID</th>
-                            <th>Event</th>
-                            <th>Date</th>
-                            <th>Card ID</th>
-                            <th>Outcome</th>
-                            <th>Result</th>
-                            <th>Sum in</th>
-                            <th>Coef</th>
-                            <th>Profit</th>
-                            <th>Currency</th>
-                            <th>С кем пересекается</th>
-                        </tr>
-                        <tr>
-                            ${item.array.map(item => {
-                                const service = item[16];
-                                const sport = item[17];
-                                const event_id = item[14];
-                                const event_name = `${item[11]} / ${item[12]} / ${item[13]}`;
-                                const date = item[6];
-                                const card_id = item[3];
-                                const outcome = item[9];
-                                const result = item[15];
-                                const sum_in = item[18];
-                                const coef = item[22];
-                                const profit = item[19];
-                                const currency = item[4];
+        const forkMarkup = filteredGroupedArray.map((user, index) => {
+            if (user.array && user.array.length > 0) {
+                return user.array.map(stake => {
 
-                                const gs_user = `${item.additionalValue[31]} / ${item.additionalValue[32]}`;
+                    const partner_id = stake[0];
+                    const user_id = stake[2];
+                    const fc_live = stake[29];
+                    const fc_prebet = stake[30];
+                    const gc_live = stake[31];
+                    const gc_prebet = stake[32];
+                    const stakes_count = stakesInfo[user_id] ? stakesInfo[user_id].length : 0; // Используем информацию о ставках для пользователя
+                    const gs_stakes_count = user.count;
+                    const ratio = Math.round(((gs_stakes_count / stakes_count) * 100));
+                    const service = stake[16];
+                    const sport = stake[17];
+                    const event_id = stake[14];
+                    const event = `${stake[11]} / ${stake[12]} / ${stake[13]}`;
+                    const date = dateFormating(stake[6]);
+                    const card_id = stake[3];
+                    const outcome = stake[9];
+                    const result = stake[15];
+                    // const sum_in = stake[18];
+                    // const coef = stake[22];
+                    // const profit = stake[19];
+                    const sum_in = replaceDotWithComma(stake[18]);
+                    const coef = replaceDotWithComma(stake[22]);
+                    const profit = replaceDotWithComma(stake[19]);
+                    const currency = stake[4];
+                    const gs_intersection = `${stake.additionalValue[31]} / ${stake.additionalValue[32]}`;
 
-                                const formattedDate = dateFormating(date);
-
-                                return `
-                                <tr>
-                                    <td>${service}</td>
-                                    <td>${sport}</td>
-                                    <td>${event_id}</td>
-                                    <td>${event_name}</td>
-                                    <td>${formattedDate}</td>
-                                    <td>${card_id}</td>
-                                    <td>${outcome}</td>
-                                    <td>${result}</td>
-                                    <td>${sum_in}</td>
-                                    <td>${coef}</td>
-                                    <td>${profit}</td>
-                                    <td>${currency}</td>
-                                    <td>${gs_user}</td>
-                                </tr>
-                                `;
-                            }).join('')}
-                        </tr>
-                    </table>
-                    </td>
-                </tr>
-            `
-        }).join('')
-
-        forkTable.insertAdjacentHTML("beforeend", forkMarkup);
-
-        const toggleCells = forkTable.querySelectorAll('.toggle-cell');
-        toggleCells.forEach(item => item.addEventListener('click', (event) => {
-            const toggleCell = event.target;
-            console.log(toggleCell)
-            const subTable = event.target.parentElement.nextElementSibling;
-            if (subTable.classList.contains('hide')) {
-                subTable.classList.remove('hide');
-                toggleCell.textContent = '-';
-            } else {
-                subTable.classList.add('hide');
-                toggleCell.textContent = '+';
+                    return `<tr class="user-info">
+                        <td>${partner_id}</td>
+                        <td>${user_id}</td>
+                        <td>${fc_live}</td>
+                        <td>${fc_prebet}</td>
+                        <td>${gc_live}</td>
+                        <td>${gc_prebet}</td>
+                        <td>${stakes_count}</td>
+                        <td>${gs_stakes_count}</td>
+                        <td>${ratio}%</td>
+                        <td>${service}</td>
+                        <td>${sport}</td>
+                        <td>${event_id}</td>
+                        <td>${event}</td>
+                        <td>${date}</td>
+                        <td>${card_id}</td>
+                        <td>${outcome}</td>
+                        <td>${result}</td>
+                        <td>${sum_in}</td>
+                        <td>${coef}</td>
+                        <td>${profit}</td>
+                        <td>${currency}</td>
+                        <td>${gs_intersection}</td>
+                    </tr>`;
+                }).join('');
             }
-        }))
+            return ''; // Возвращаем пустую строку, если user.array пуст или отсутствует
+        }).join('');
+        
+        forkTable.insertAdjacentHTML("beforeend", forkMarkup);
 
     }).catch(error => {
         console.error(error);
@@ -171,4 +138,8 @@ function sortGroupedArray(array) {
         user_id: sortedByUserId,
         fork_count: sortedByForkCount
     };
+}
+
+function replaceDotWithComma(number) {
+    return (''+number).replace(/\./g, ',');
 }
